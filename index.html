@@ -11,40 +11,26 @@
             display: flex; 
             flex-direction: column;
             align-items: center; 
+            justify-content: center;
             height: 100vh; 
             margin: 0; 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         #menu-container {
-            margin-top: 15vh;
             background: #1e1e1e;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             text-align: center;
-            width: 500px;
+            width: 400px;
             max-width: 90%;
         }
 
         h1 { margin-top: 0; font-size: 22px; color: #fff; }
-        p { font-size: 14px; color: #aaa; margin-bottom: 20px;}
-
-        /* Estilos para etiquetas y selectores */
-        .etiqueta { text-align: left; display: block; font-size: 14px; color: #ccc; margin-top: 15px; margin-bottom: 5px; font-weight: bold;}
-        select, input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            background: #2a2a2a;
-            color: #fff;
-            border: 1px solid #444;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
+        p { font-size: 14px; color: #aaa; margin-bottom: 25px;}
 
         button {
-            margin-top: 25px;
             background: #0078d7;
             color: white;
             border: none;
@@ -65,7 +51,6 @@
             width: 800px; 
             height: 600px; 
             max-width: 100%; 
-            margin-top: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
         }
     </style>
@@ -73,24 +58,9 @@
 <body>
 
     <div id="menu-container">
-        <h1>Visor de Archivos (Modo Local)</h1>
-        <p>Selecciona los recursos de tu equipo para procesar.</p>
-        
-        <label class="etiqueta">1. Configuración de Sistema:</label>
-        <select id="bios-select" onchange="alternarBios()">
-            <option value="simulada">Usar Sistema Simulado (Rápido)</option>
-            <option value="local">Subir archivo de Sistema (.BIN)</option>
-        </select>
-
-        <div id="bios-upload-container" style="display: none;">
-            <label class="etiqueta">Selecciona el archivo BIOS (ej. SCPH-5501.BIN):</label>
-            <input type="file" id="bios-file" accept=".bin">
-        </div>
-
-        <label class="etiqueta">2. Archivo de Datos Principal:</label>
-        <input type="file" id="game-file" accept=".chd,.bin,.cue,.iso">
-        
-        <button onclick="iniciarJuego()">Procesar Datos</button>
+        <h1>Entorno de Trabajo</h1>
+        <p>Inicia la máquina virtual para procesar datos locales.</p>
+        <button onclick="iniciarEntorno()">Iniciar Máquina</button>
     </div>
 
     <div id="game-container">
@@ -98,50 +68,17 @@
     </div>
 
     <script type="text/javascript">
-        // Función para mostrar/ocultar el botón de subir BIOS
-        function alternarBios() {
-            const seleccion = document.getElementById('bios-select').value;
-            const contenedorBios = document.getElementById('bios-upload-container');
-            if (seleccion === 'local') {
-                contenedorBios.style.display = 'block';
-            } else {
-                contenedorBios.style.display = 'none';
-            }
-        }
-
-        function iniciarJuego() {
-            const archivoJuego = document.getElementById('game-file').files[0];
-            
-            // Validación de seguridad
-            if (!archivoJuego) {
-                alert("Por favor, selecciona un archivo de datos (.chd, .bin) de tu computadora para continuar.");
-                return;
-            }
-
+        function iniciarEntorno() {
             // Ocultar menú y mostrar emulador
             document.getElementById('menu-container').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
 
-            // Configuración base de EmulatorJS
+            // Configuración base (SIN urls de juegos ni bios, totalmente limpio)
             window.EJS_player = '#game';
             window.EJS_core = 'psx'; 
             window.EJS_color = '#0078d7';
 
-            // Convertimos el archivo local de tu PC en una URL temporal que el emulador puede leer
-            window.EJS_gameUrl = URL.createObjectURL(archivoJuego);
-
-            // Verificamos qué opción de BIOS se eligió
-            const modoBios = document.getElementById('bios-select').value;
-            if (modoBios === 'local') {
-                const archivoBios = document.getElementById('bios-file').files[0];
-                if (archivoBios) {
-                    window.EJS_biosUrl = URL.createObjectURL(archivoBios);
-                } else {
-                    console.log("Se eligió BIOS local pero no se subió el archivo. Usando HLE simulada.");
-                }
-            }
-
-            // Arrancamos el núcleo
+            // Cargar núcleo
             const script = document.createElement('script');
             script.src = 'https://www.emulatorjs.com/loader.js';
             document.body.appendChild(script);
