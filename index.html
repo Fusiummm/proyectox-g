@@ -69,16 +69,19 @@
 
     <script type="text/javascript">
         function iniciarEntorno() {
-            // Ocultar menú y mostrar emulador
+            // 1. Ocultamos el menú y mostramos la pantalla del emulador
             document.getElementById('menu-container').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
 
-            // Configuración base (SIN urls de juegos ni bios, totalmente limpio)
+            // 2. Configuración base del emulador
             window.EJS_player = '#game';
             window.EJS_core = 'psx'; 
             window.EJS_color = '#0078d7';
+            
+            // 3. LA CORRECCIÓN: Declaramos la variable vacía para evitar la pantalla negra
+            window.EJS_gameUrl = ''; 
 
-            // Cargar núcleo
+            // 4. Inyectamos y arrancamos el núcleo oficial
             const script = document.createElement('script');
             script.src = 'https://www.emulatorjs.com/loader.js';
             document.body.appendChild(script);
