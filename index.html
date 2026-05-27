@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor de Datos - Proyecto</title>
+    <style>
+        body { 
+            background-color: #121212; 
+            color: #e0e0e0; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        #menu-container {
+            margin-top: 15vh;
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 500px;
+            max-width: 90%;
+        }
+
+        h1 { margin-top: 0; font-size: 22px; color: #fff; }
+        p { font-size: 14px; color: #aaa; margin-bottom: 20px;}
+
+        /* Estilos para etiquetas y selectores */
+        .etiqueta { text-align: left; display: block; font-size: 14px; color: #ccc; margin-top: 15px; margin-bottom: 5px; font-weight: bold;}
+        select, input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 25px;
+            background: #0078d7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+            font-weight: bold;
+        }
+
+        button:hover { background: #005a9e; }
+
+        /* Contenedor del emulador */
+        #game-container { 
+            display: none;
+            width: 800px; 
+            height: 600px; 
+            max-width: 100%; 
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menu-container">
+        <h1>Visor de Archivos (Modo Local)</h1>
+        <p>Selecciona los recursos de tu equipo para procesar.</p>
+        
+        <label class="etiqueta">1. Configuración de Sistema:</label>
+        <select id="bios-select" onchange="alternarBios()">
+            <option value="simulada">Usar Sistema Simulado (Rápido)</option>
+            <option value="local">Subir archivo de Sistema (.BIN)</option>
+        </select>
+
+        <div id="bios-upload-container" style="display: none;">
+            <label class="etiqueta">Selecciona el archivo BIOS (ej. SCPH-5501.BIN):</label>
+            <input type="file" id="bios-file" accept=".bin">
+        </div>
+
+        <label class="etiqueta">2. Archivo de Datos Principal:</label>
+        <input type="file" id="game-file" accept=".chd,.bin,.cue,.iso">
+        
+        <button onclick="iniciarJuego()">Procesar Datos</button>
+    </div>
+
+    <div id="game-container">
+        <div id="game"></div>
+    </div>
+
+    <script type="text/javascript">
+        // Función para mostrar/ocultar el botón de subir BIOS
+        function alternarBios() {
+            const seleccion = document.getElementById('bios-select').value;
+            const contenedorBios = document.getElementById('bios-upload-container');
+            if (seleccion === 'local') {
+                contenedorBios.style.display = 'block';
+            } else {
+                contenedorBios.style.display = 'none';
+            }
+        }
+
+        function iniciarJuego() {
+            const archivoJuego = document.getElementById('game-file').files[0];
+            
+            // Validación de seguridad
+            if (!archivoJuego) {
+                alert("Por favor, selecciona un archivo de datos (.chd, .bin) de tu computadora para continuar.");
+                return;
+            }
+
+            // Ocultar menú y mostrar emulador
+            document.getElementById('menu-container').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+
+            // Configuración base de EmulatorJS
+            window.EJS_player = '#game';
+            window.EJS_core = 'psx'; 
+            window.EJS_color = '#0078d7';
+
+            // Convertimos el archivo local de tu PC en una URL temporal que el emulador puede leer
+            window.EJS_gameUrl = URL.createObjectURL(archivoJuego);
+
+            // Verificamos qué opción de BIOS se eligió
+            const modoBios = document.getElementById('bios-select').value;
+            if (modoBios === 'local') {
+                const archivoBios = document.getElementById('bios-file').files[0];
+                if (archivoBios) {
+                    window.EJS_biosUrl = URL.createObjectURL(archivoBios);
+                } else {
+                    console.log("Se eligió BIOS local pero no se subió el archivo. Usando HLE simulada.");
+                }
+            }
+
+            // Arrancamos el núcleo
+            const script = document.createElement('script');
+            script.src = 'https://www.emulatorjs.com/loader.js';
+            document.body.appendChild(script);
+        }
+    </script>
+
+</body>
+</html>
